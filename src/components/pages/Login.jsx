@@ -28,7 +28,6 @@ function Login({ onLogin }) {
     }
   };
 
-  // Componente de logo estilo Fiat
   const renderLogo = () => {
     const renderWord = (word) =>
       word.split("").map((char, index) => (
@@ -41,7 +40,7 @@ function Login({ onLogin }) {
       ));
 
     return (
-      <div className="mb-10 flex flex-col items-center">
+      <div className="mb-8 flex flex-col items-center">
         <div className="flex">{renderWord("PREVER")}</div>
         <div className="h-2"></div>
         <div className="flex">
@@ -56,10 +55,10 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 flex-col">
+    <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 pt-10">
       {renderLogo()}
 
-      <div className="bg-white p-8 shadow-md rounded-md max-w-sm w-full">
+      <div className="bg-white p-8 shadow-md rounded-md max-w-sm w-full mt-6">
         <h2 className="text-3xl font-semibold text-center mb-6">
           Inicio de Sesión
         </h2>
