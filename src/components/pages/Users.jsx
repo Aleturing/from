@@ -148,7 +148,7 @@ function Users({ setOnLogin }) {
 
   const getUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/usuarios");
+      const response = await axios.get("https://back-bakend2.onrender.com/api/usuarios");
       setUsers(response.data);
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
@@ -158,7 +158,7 @@ function Users({ setOnLogin }) {
   const getAdmins = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/administradores"
+        "https://back-bakend2.onrender.com/api/administradores"
       );
       setAdministradores(response.data);
     } catch (error) {
@@ -169,12 +169,12 @@ function Users({ setOnLogin }) {
   const addUser = async (userData, isAdmin) => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/usuarios",
+        "https://back-bakend2.onrender.com/api/usuarios",
         userData
       );
 
       if (isAdmin) {
-        await axios.post("http://localhost:3000/api/administradores", {
+        await axios.post("https://back-bakend2.onrender.com/api/administradores", {
           usuario_id: response.data.id,
           nivel_acceso: "admin",
         });
@@ -188,7 +188,7 @@ function Users({ setOnLogin }) {
 
   const deleteUser = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/usuarios/${id}`);
+      await axios.delete(`https://back-bakend2.onrender.com/api/usuarios/${id}`);
       getUsers();
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
@@ -197,7 +197,7 @@ function Users({ setOnLogin }) {
 
   const editUser = async (id, userData) => {
     try {
-      await axios.put(`http://localhost:3000/api/usuarios/${id}`, userData);
+      await axios.put(`https://back-bakend2.onrender.com/api/usuarios/${id}`, userData);
       getUsers();
     } catch (error) {
       console.error("Error al editar usuario:", error);

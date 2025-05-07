@@ -19,25 +19,23 @@ function ItemPay(p) {
   };
 
   return (
-    <tr>
-      <td className="py-2 text-center" x-text="index+1"></td>
-      <td className="py-2 text-left">
+    <tr className="w-full">
+      <td className="py-2 text-center">
+        {p.paid.id}
+      </td>
+      <td className="py-2 text-left w-full">
         <SelectorPay
           options={options}
           label="Elige una opción"
           onChange={(e) => handleSelectorChange(e)}
         />
-        <br />
-        <small x-text="priceFormat(item.price)"></small>
       </td>
-      <td className="py-2 text-center" x-text="item.qty">
-        <Amount amount = {p.paid.mnt} setPaid={p.setPaid} id = {p.paid.id} paids = {p.paids}/>
+      <td className="py-2 text-right">
+        <Amount amount={p.paid.mnt} setPaid={p.setPaid} id={p.paid.id} paids={p.paids} />
       </td>
-
-      <td
-        className="py-2 text-right"
-        x-text="priceFormat(item.qty * item.price)"
-      ></td>
+      <td className="py-2 text-right">
+        {/* Mostrar el precio calculado o lo que necesites */}
+      </td>
     </tr>
   );
 }

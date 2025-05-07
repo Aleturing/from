@@ -17,7 +17,7 @@ function App() {
     try {
       // Realiza una consulta para verificar si existen registros en la tabla "administrador"
       const response = await axios.get(
-        "http://localhost:3000/api/administradores"
+        "https://back-bakend2.onrender.com/api/administradores"
       ); // Ajusta la URL según tu API
       setHasAdmin(response.data.length > 0); // Si hay registros, hay administradores
     } catch (error) {

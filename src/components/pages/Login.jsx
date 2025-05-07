@@ -14,11 +14,11 @@ function Login({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log(formData);
       const response = await axios.post(
-        "http://localhost:3000/auth/login", // Asegúrate de usar la ruta correcta
+        "https://back-bakend2.onrender.com/auth/login", // Asegúrate de usar la ruta correcta
         formData
       );
-    
 
       // Si el login es exitoso, guardar los datos en el almacenamiento local
       localStorage.setItem("usuario", JSON.stringify(response.data.usuario));
@@ -36,6 +36,9 @@ function Login({ onLogin }) {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 shadow-md rounded-md max-w-sm w-full">
+        {/* Logo o nombre de la empresa centrado */}
+        <h1 className="text-2xl font-bold text-center mb-6">Prever Bussine C.A</h1>
+
         <h2 className="text-3xl font-semibold text-center mb-6">
           Inicio de Sesión
         </h2>

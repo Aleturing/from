@@ -7,6 +7,7 @@ const NoPrintArea = (p) => {
     
 
       <PageContent
+        products={p.products}
         carrito={p.carrito}
         setCarrito={p.setCarrito}
         paid={p.paid}
@@ -23,6 +24,8 @@ const NoPrintArea = (p) => {
         setIsSubmit={p.setIsSubmit}
         carrito={p.carrito}
         setFacturaId={p.setFacturaId}
+        onLogin={p.onLogin}
+
       />
 
       <PrintDecision

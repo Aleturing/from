@@ -15,7 +15,7 @@ const Sales = ({ setOnLogin }) => {
     const fetchInvoices = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/facturasVentas"
+          "https://back-bakend2.onrender.com/api/facturasVentas"
         ); // Ajusta la URL a tu servidor
         setInvoices(response.data);
         setFilteredInvoices(response.data);
@@ -52,7 +52,7 @@ const Sales = ({ setOnLogin }) => {
     setFilteredInvoices(filtered);
   };
 
-  // Función para calcular las ganancias totales (diario, semanal, etc.)
+  // función para el calculo las ganancias totales (diario,semanal,etc.)
   const calculateTotalEarnings = (interval) => {
     let total = 0;
     filteredInvoices.forEach((invoice) => {
@@ -135,7 +135,7 @@ const Sales = ({ setOnLogin }) => {
               <p>Factura ID: {invoice.id}</p>
               <p>Usuario: {invoice.usuario_nombre}</p>
               <p>Fecha: {invoice.fecha}</p>
-              <p>Monto: {invoice.total}</p>
+              <p>Monto: {invoice.total} - Iva: {invoice.IVA}</p>
               {/* <p>Artículos: {invoice.items.join(", ")}</p> */}
             </div>
           ))}

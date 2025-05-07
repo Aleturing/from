@@ -1,8 +1,6 @@
-import ProductsCart from "./ProductsCart";
 import CardItem from "./CardItem";
 
 const ShowArtListCart = (p) => {
-  
   return (
     <div className="flex-1 w-full px-4 overflow-auto">
       {p.carrito.map((e) => {
@@ -15,6 +13,7 @@ const ShowArtListCart = (p) => {
             stock={e.stock}
             setCarrito={p.setCarrito}
             carrito={p.carrito}
+            products={p.products}
           />
         );
       })}

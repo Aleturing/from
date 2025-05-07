@@ -11,7 +11,7 @@ function Products({ setOnLogin }) {
   // Obtener los productos desde la API
   const getProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/productos");
+      const response = await axios.get("https://back-bakend2.onrender.com/api/productos");
       setProducts(response.data);
     } catch (error) {
       console.error("Error al obtener productos:", error);
@@ -32,7 +32,7 @@ function Products({ setOnLogin }) {
   const editProduct = async (id, updatedProduct) => {
     try {
       const response = await axios.put(
-        `http://localhost:3000/api/productos/${id}`,
+        `https://back-bakend2.onrender.com/api/productos/${id}`,
         updatedProduct
       );
       // actualizar la lista de productos después de la edicion
@@ -47,7 +47,7 @@ function Products({ setOnLogin }) {
   // funcion para eliminar un producto del api
   const deleteProduct = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/productos/${id}`);
+      await axios.delete(`https://back-bakend2.onrender.com/api/productos/${id}`);
       // Una vez eliminado, se actualiza la lista de productos
       getProducts();
     } catch (error) {
@@ -75,7 +75,7 @@ function Products({ setOnLogin }) {
   const postRequest = async (url, data) => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api" + url,
+        "https://back-bakend2.onrender.com/api" + url,
         data
       );
       return response.data; // Devuelve los datos de la respuesta
@@ -149,6 +149,7 @@ function ProductList({ products, onEdit, onDelete }) {
             <div>
               <h3 className="text-xl font-semibold">{article.descripcion}</h3>
               <p className="mt-2">{article.precio}</p>
+              <p className="mt-2">{article.stock}</p>
             </div>
             <div>
               <button

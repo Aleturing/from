@@ -7,7 +7,7 @@ function ProductsArea(p) {
       <div className="flex-1 flex flex-col overflow-auto">
         <SeachCart carrito={p.carrito} setCarrito={p.setCarrito} />
 
-        <ShowArtListCart carrito={p.carrito} setCarrito={p.setCarrito} />
+        <ShowArtListCart carrito={p.carrito} setCarrito={p.setCarrito} products={p.products} />
       </div>
     );
   }

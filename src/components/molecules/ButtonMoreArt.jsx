@@ -5,11 +5,14 @@ function ButtonMoreArt(p) {
   const findToCart = () => {
     return p.carrito.findIndex((e) => e.tittle === p.tittle);
   };
-  const updateToCart = (i) => {
+
+  const updateToCart = (i) => {console.log(p.stock)
     const carrito = p.carrito;
-    console.log(carrito)
-    carrito[i].stock += 1;
-    p.setCarrito(carrito);
+    const stockActual = p.stock - carrito[i].stock;
+    if (stockActual > 0) {
+      carrito[i].stock += 1;
+      p.setCarrito(carrito);
+    }
   };
   return (
     <button

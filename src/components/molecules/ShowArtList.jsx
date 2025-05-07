@@ -19,6 +19,7 @@ const ShowArtList = (p) => {
               tittle={e.descripcion}
               price={e.precio}
               img={e.foto}
+              stock={e.stock}
             />
           );
         })}
