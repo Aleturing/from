@@ -55,7 +55,7 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 pt-10">
+    <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 pt-20">
       {renderLogo()}
 
       <div className="bg-white p-8 shadow-md rounded-md max-w-sm w-full mt-6">
