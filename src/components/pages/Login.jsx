@@ -15,11 +15,9 @@ function Login({ onLogin }) {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "https://back-bakend2.onrender.com/auth/login", // Asegúrate de usar la ruta correcta
+        "https://back-bakend2.onrender.com/auth/login",
         formData
       );
-
-      // Si el login es exitoso, guardar los datos en el almacenamiento local
       localStorage.setItem("usuario", JSON.stringify(response.data.usuario));
       onLogin(response.data.usuario);
       setError("");
@@ -29,11 +27,22 @@ function Login({ onLogin }) {
     }
   };
 
+  // Genera un array de letras para el logo
+  const logoText = "PREVER".split("");
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      {/* Logo de la empresa fuera del cuadro de login */}
-      <div className="bg-blue-800 text-white px-8 py-4 rounded-md shadow-lg mb-8">
-        <span className="text-2xl font-bold tracking-widest">PREVER BUSSINE C.A</span>
+      {/* Logo de la empresa con letra en cuadro azul */}
+      <div className="flex space-x-1 mb-8">
+        {logoText.map((letter, idx) => (
+          <div
+            key={idx}
+            className="bg-blue-800 text-white text-6xl font-bold px-4 py-2 relative"
+            style={{ borderRight: idx < logoText.length - 1 ? '2px solid white' : 'none' }}
+          >
+            {letter}
+          </div>
+        ))}
       </div>
 
       <div className="bg-white p-8 shadow-md rounded-md max-w-sm w-full">
