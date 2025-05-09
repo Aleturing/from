@@ -1,26 +1,29 @@
 import SidebarLink from "../molecules/SidebarLink";
 import SidebarIcon from "../molecules/SidebarIcon";
-import { useNavigate } from "react-router-dom"; // Importamos useNavigate
+import { useNavigate } from "react-router-dom";
 
 function LeftSideBar({ setOnLogin }) {
-  const navigate = useNavigate(); // Inicializamos useNavigate
+  const navigate = useNavigate();
+
   const logOut = () => {
     setOnLogin({});
     navigate("/login");
   };
+
   return (
     <div className="flex flex-row w-auto flex-shrink-0 pl-4 pr-2 py-4">
       <div className="flex flex-col items-center py-4 flex-shrink-0 w-20 bg-cyan-500 rounded-3xl">
         <SidebarIcon />
         <ul className="flex flex-col space-y-2 mt-12">
-          <SidebarLink to="/operations" icon="operations" />
-          <SidebarLink to="/products" icon="products" />
-          <SidebarLink to="/users" icon="users" />
-          <SidebarLink to="/sales" icon="sales" />
+          <SidebarLink to="/operations" icon="operations" title="Operaciones" />
+          <SidebarLink to="/products" icon="products" title="Productos" />
+          <SidebarLink to="/users" icon="users" title="Usuarios" />
+          <SidebarLink to="/sales" icon="sales" title="Ventas" />
         </ul>
         <div
           onClick={() => logOut()}
-          className="mt-auto flex items-center justify-center text-cyan-200 hover:text-cyan-100 h-10 w-10 focus:outline-none"
+          title="Cerrar sesión"
+          className="mt-auto flex items-center justify-center text-cyan-200 hover:text-cyan-100 h-10 w-10 focus:outline-none cursor-pointer"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
