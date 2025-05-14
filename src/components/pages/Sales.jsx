@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+// src/components/pages/Sales.jsx
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import ReactToPrint from "react-to-print";
 import LeftSideBar from "../organism/LeftSideBar";
 
 const Sales = ({ setOnLogin }) => {
@@ -9,138 +11,166 @@ const Sales = ({ setOnLogin }) => {
   const [filterDate, setFilterDate] = useState("");
   const [filterUser, setFilterUser] = useState("");
   const [filterAmount, setFilterAmount] = useState("");
+  const printRef = useRef();
 
+  // Carga inicial de facturas
   useEffect(() => {
-    // Función para obtener facturas desde la API
     const fetchInvoices = async () => {
       try {
-        const response = await axios.get(
+        const { data } = await axios.get(
           "https://back-bakend2.onrender.com/api/facturasVentas"
-        ); // Ajusta la URL a tu servidor
-        setInvoices(response.data);
-        setFilteredInvoices(response.data);
-      } catch (error) {
-        console.error("Error fetching invoices:", error);
+        );
+        setInvoices(data);
+        setFilteredInvoices(data);
+      } catch (err) {
+        console.error("Error fetching invoices:", err);
       }
     };
-
     fetchInvoices();
   }, []);
 
-  const filterInvoices = () => {
-    let filtered = invoices;
+  // Filtrado reactivo
+  useEffect(() => {
+    let result = invoices;
     if (searchQuery) {
-      filtered = filtered.filter((invoice) =>
-        invoice.id.toString().includes(searchQuery)
+      result = result.filter(inv =>
+        inv.id.toString().includes(searchQuery)
       );
     }
     if (filterDate) {
-      filtered = filtered.filter((invoice) =>
-        invoice.date.includes(filterDate)
-      );
+      result = result.filter(inv => inv.fecha.includes(filterDate));
     }
     if (filterUser) {
-      filtered = filtered.filter((invoice) =>
-        invoice.user.toLowerCase().includes(filterUser.toLowerCase())
+      result = result.filter(inv =>
+        inv.usuario_nombre.toLowerCase().includes(filterUser.toLowerCase())
       );
     }
     if (filterAmount) {
-      filtered = filtered.filter(
-        (invoice) => invoice.amount >= parseFloat(filterAmount)
-      );
+      result = result.filter(inv => inv.total >= parseFloat(filterAmount));
     }
-    setFilteredInvoices(filtered);
-  };
+    setFilteredInvoices(result);
+  }, [invoices, searchQuery, filterDate, filterUser, filterAmount]);
 
-  // función para el calculo las ganancias totales (diario,semanal,etc.)
-  const calculateTotalEarnings = (interval) => {
-    let total = 0;
-    filteredInvoices.forEach((invoice) => {
-      const date = new Date(invoice.date);
-      const now = new Date();
-      let isInRange = false;
-
+  // Cálculo de totales
+  const calculateTotalEarnings = interval => {
+    const now = new Date();
+    return filteredInvoices.reduce((sum, inv) => {
+      const date = new Date(inv.fecha);
+      let include = false;
       switch (interval) {
         case "daily":
-          isInRange = date.toDateString() === now.toDateString();
+          include = date.toDateString() === now.toDateString();
           break;
         case "weekly":
-          const diffDays = Math.floor((now - date) / (1000 * 3600 * 24));
-          isInRange = diffDays <= 7;
+          include = (now - date) / (1000 * 3600 * 24) <= 7;
           break;
         case "monthly":
-          isInRange =
+          include =
             date.getMonth() === now.getMonth() &&
             date.getFullYear() === now.getFullYear();
           break;
         case "yearly":
-          isInRange = date.getFullYear() === now.getFullYear();
-          break;
-        default:
+          include = date.getFullYear() === now.getFullYear();
           break;
       }
+      return include ? sum + inv.total : sum;
+    }, 0);
+  };
 
-      if (isInRange) {
-        total += invoice.amount;
-      }
-    });
-    return total;
+  // Formatea fecha para impresión
+  const formatDate = iso => {
+    const d = new Date(iso);
+    return d.toLocaleDateString() + " " + d.toLocaleTimeString();
   };
 
   return (
-    <div className="hide-print flex flex-row h-screen antialiased text-blue-gray-800">
-      <LeftSideBar setOnLogin={setOnLogin}/>
-      <div class="p-5">
-        <div class="flex gap-2 mb-5">
+    <div className="hide-print flex h-screen text-blue-gray-800 antialiased">
+      <LeftSideBar setOnLogin={setOnLogin} />
+
+      <main className="flex-1 p-5 overflow-auto">
+        {/* Botón de impresión */}
+        <div className="mb-4">
+          <ReactToPrint
+            trigger={() => (
+              <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                🖨️ Imprimir todas las facturas
+              </button>
+            )}
+            content={() => printRef.current}
+            pageStyle="@page { size: auto; margin: 20mm; }"
+          />
+        </div>
+
+        {/* Contenido oculto para imprimir */}
+        <div className="hidden" ref={printRef}>
+          <h1 className="text-2xl font-bold mb-4">Listado de Facturas</h1>
+          {filteredInvoices.map(inv => (
+            <div key={inv.id} className="mb-4 border-b pb-2">
+              <p><strong>ID:</strong> {inv.id}</p>
+              <p><strong>Usuario:</strong> {inv.usuario_nombre}</p>
+              <p><strong>Fecha:</strong> {formatDate(inv.fecha)}</p>
+              <p><strong>Total:</strong> ${inv.total.toFixed(2)}</p>
+              <p><strong>IVA:</strong> {inv.IVA}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Filtros */}
+        <div className="flex gap-2 mb-5">
           <input
             type="text"
             placeholder="Buscar factura..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="border p-2 rounded"
           />
           <input
             type="date"
             value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
+            onChange={e => setFilterDate(e.target.value)}
+            className="border p-2 rounded"
           />
           <input
             type="text"
             placeholder="Filtrar por usuario"
             value={filterUser}
-            onChange={(e) => setFilterUser(e.target.value)}
+            onChange={e => setFilterUser(e.target.value)}
+            className="border p-2 rounded"
           />
           <input
             type="number"
             placeholder="Filtrar por monto"
             value={filterAmount}
-            onChange={(e) => setFilterAmount(e.target.value)}
+            onChange={e => setFilterAmount(e.target.value)}
+            className="border p-2 rounded"
           />
-          <button onClick={filterInvoices}>Aplicar filtros</button>
         </div>
 
-        <div class="mb-5">
-          <p>Total Ganancias - Diario: ${calculateTotalEarnings("daily")}</p>
-          <p>Total Ganancias - Semanal: ${calculateTotalEarnings("weekly")}</p>
-          <p>Total Ganancias - Mensual: ${calculateTotalEarnings("monthly")}</p>
-          <p>Total Ganancias - Anual: ${calculateTotalEarnings("yearly")}</p>
+        {/* Totales */}
+        <div className="mb-5 space-y-1">
+          <p>Total Diario: ${calculateTotalEarnings("daily").toFixed(2)}</p>
+          <p>Total Semanal: ${calculateTotalEarnings("weekly").toFixed(2)}</p>
+          <p>Total Mensual: ${calculateTotalEarnings("monthly").toFixed(2)}</p>
+          <p>Total Anual: ${calculateTotalEarnings("yearly").toFixed(2)}</p>
         </div>
 
-        {/* Contenedor de Facturas */}
+        {/* Grid de facturas */}
         <div className="grid grid-cols-3 gap-2 max-h-96 overflow-y-scroll">
-          {filteredInvoices.map((invoice) => (
+          {filteredInvoices.map(inv => (
             <div
-              class="border border-gray-300 p-2 rounded-lg bg-white"
-              key={invoice.id}
+              key={inv.id}
+              className="border border-gray-300 p-2 rounded-lg bg-white"
             >
-              <p>Factura ID: {invoice.id}</p>
-              <p>Usuario: {invoice.usuario_nombre}</p>
-              <p>Fecha: {invoice.fecha}</p>
-              <p>Monto: {invoice.total} - Iva: {invoice.IVA}</p>
-              {/* <p>Artículos: {invoice.items.join(", ")}</p> */}
+              <p>Factura ID: {inv.id}</p>
+              <p>Usuario: {inv.usuario_nombre}</p>
+              <p>Fecha: {inv.fecha}</p>
+              <p>
+                Total: ${inv.total.toFixed(2)} — IVA: {inv.IVA}
+              </p>
             </div>
           ))}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
