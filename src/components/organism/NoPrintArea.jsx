@@ -3,9 +3,8 @@ import ModalCobro from "./ModalCobro";
 import PageContent from "./PageContent";
 import PrintDecision from "./PrintDecision";
 const NoPrintArea = (p) => {
-  return (<>
-    
-
+  return (
+    <>
       <PageContent
         products={p.products}
         carrito={p.carrito}
@@ -14,6 +13,8 @@ const NoPrintArea = (p) => {
         setPaid={p.changePaid}
         setIsSubmit={p.setIsSubmit}
         onLogin={p.onLogin}
+        client={p.client}
+        setClient={p.setClient}
       />
 
       <ModalCobro
@@ -25,7 +26,6 @@ const NoPrintArea = (p) => {
         carrito={p.carrito}
         setFacturaId={p.setFacturaId}
         onLogin={p.onLogin}
-
       />
 
       <PrintDecision

@@ -10,6 +10,11 @@ class Operations extends Component {
     isSubmit: false,
     isPrint: false,
     facturaId: 0,
+    client: {
+      nombre: "",
+      cedula: "",
+      telefono: "",
+    },
   };
   changeCarrito(carrito) {
     this.setState({ carrito });
@@ -26,11 +31,13 @@ class Operations extends Component {
   changeFacturaId(facturaId) {
     this.setState({ facturaId });
   }
-
+  changeClient(client) {
+    this.setState({client});
+  }
   render() {
     return (
       <div className="hide-print flex flex-row h-screen antialiased text-blue-gray-800">
-        <LeftSideBar  setOnLogin={this.props.setOnLogin}/>
+        <LeftSideBar setOnLogin={this.props.setOnLogin} />
         <NoPrintArea
           carrito={this.state.carrito}
           setCarrito={this.changeCarrito.bind(this)}
@@ -43,6 +50,8 @@ class Operations extends Component {
           setFacturaId={this.changeFacturaId.bind(this)}
           facturaId={this.state.facturaId}
           onLogin={this.props.onLogin}
+          client={this.state.client}
+          setClient={this.changeClient.bind(this)}
         />
         <PrintArea />
       </div>

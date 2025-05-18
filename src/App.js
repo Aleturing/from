@@ -13,6 +13,7 @@ function App() {
   const [hasAdmin, setHasAdmin] = useState(false);
   const [onLogin, setOnLogin] = useState({});
 
+
   const checkAdmins = async () => {
     try {
       // Realiza una consulta para verificar si existen registros en la tabla "administrador"

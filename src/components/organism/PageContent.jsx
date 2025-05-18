@@ -1,5 +1,5 @@
 import StoreMenu from "./StoreMenu";
-import RighSideBar from "./RigthSideBar";
+import RightSideBar from "./RightSideBar";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -23,7 +23,7 @@ const PageContent = (p) => {
   return (
     <div className="flex-grow flex">
       <StoreMenu carrito={p.carrito} setCarrito={p.setCarrito} onLogin={p.onLogin} products={products}/>
-      <RighSideBar products={products} carrito={p.carrito} setCarrito={p.setCarrito} paid={p.paid} setPaid={p.setPaid} setIsSubmit={p.setIsSubmit} />
+      <RightSideBar products={products} carrito={p.carrito} setCarrito={p.setCarrito} paid={p.paid} setPaid={p.setPaid} setIsSubmit={p.setIsSubmit} clientInfo={p.client} setClientInfo={p.setClient} />
     </div>
   );
 };
