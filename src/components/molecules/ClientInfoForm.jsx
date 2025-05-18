@@ -5,19 +5,40 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
-  // Si quieres cargar los datos de un cliente existente al montar:
+  // Buscar cliente por cédula/RIF
   useEffect(() => {
-    if (clientInfo.id) {
-      setMsg(""); // limpia mensajes anteriores
-    }
-  }, [clientInfo.id]);
+    const buscarClientePorCedula = async () => {
+      if (clientInfo.cedula && clientInfo.cedula.length >= 6) {
+        try {
+          const { data } = await axios.get(
+            `https://back-bakend2.onrender.com/api/clientes/cedula/${clientInfo.cedula}`
+          );
+
+          if (data) {
+            setClientInfo({
+              id: data.id,
+              nombre: data.nombre,
+              cedula: data.cedula,
+              telefono: data.telefono,
+              direccion: data.direccion,
+            });
+            setMsg("Cliente encontrado.");
+          }
+        } catch (err) {
+          // Si no existe, limpia el ID y el mensaje
+          setClientInfo((prev) => ({ ...prev, id: null }));
+          setMsg("Cliente no registrado.");
+        }
+      }
+    };
+
+    buscarClientePorCedula();
+  }, [clientInfo.cedula]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Si es el campo de teléfono, filtra solo números
     if (name === "telefono") {
-      const soloNumeros = value.replace(/\D/g, ""); // elimina todo lo que no sea dígito
+      const soloNumeros = value.replace(/\D/g, "");
       setClientInfo({ ...clientInfo, [name]: soloNumeros });
     } else {
       setClientInfo({ ...clientInfo, [name]: value });
@@ -29,29 +50,25 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
     setLoading(true);
     setMsg("");
 
+    const payload = {
+      nombre: clientInfo.nombre,
+      cedula: clientInfo.cedula,
+      telefono: clientInfo.telefono,
+      direccion: clientInfo.direccion,
+    };
+
     try {
       if (clientInfo.id) {
-        // Actualizar cliente existente
         await axios.put(
           `https://back-bakend2.onrender.com/api/clientes/${clientInfo.id}`,
-          {
-            nombre: clientInfo.nombre,
-            cedula: clientInfo.cedula,
-            telefono: clientInfo.telefono,
-          }
+          payload
         );
         setMsg("Cliente actualizado correctamente.");
       } else {
-        // Crear nuevo cliente
         const { data } = await axios.post(
           "https://back-bakend2.onrender.com/api/clientes",
-          {
-            nombre: clientInfo.nombre,
-            cedula: clientInfo.cedula,
-            telefono: clientInfo.telefono,
-          }
+          payload
         );
-        // data.id proviene del controlador: res.status(201).json({ id });
         setClientInfo((prev) => ({ ...prev, id: data.id }));
         setMsg("Cliente creado correctamente.");
       }
@@ -62,6 +79,7 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
       setLoading(false);
     }
   };
+
   return (
     <form onSubmit={handleSubmit} className="p-4 border-b border-gray-300">
       <h2 className="text-lg font-semibold mb-2">
@@ -99,6 +117,16 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
           required
         />
 
+        <input
+          type="text"
+          name="direccion"
+          value={clientInfo.direccion || ""}
+          onChange={handleChange}
+          placeholder="Dirección"
+          className="w-full p-2 border rounded-lg"
+          required
+        />
+
         <button
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
@@ -116,7 +144,9 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
         {msg && (
           <p
             className={`mt-2 text-sm ${
-              msg.includes("correctamente") ? "text-green-600" : "text-red-600"
+              msg.includes("correctamente") || msg === "Cliente encontrado."
+                ? "text-green-600"
+                : "text-red-600"
             }`}
           >
             {msg}
