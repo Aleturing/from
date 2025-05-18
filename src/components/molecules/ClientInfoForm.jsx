@@ -9,6 +9,7 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
   const buscarClientePorCedula = async (cedula) => {
     try {
       const { data } = await axios.get(`https://back-bakend2.onrender.com/api/clientes/cedula/${cedula}`);
+      console.log({data})
       if (data) {
         setClientInfo({
           id: data.id,
@@ -21,7 +22,6 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
       }
     } catch (error) {
       // Si no se encuentra, no mostramos error, solo limpiamos el ID
-      setClientInfo((prev) => ({ ...prev, id: null }));
     }
   };
 
@@ -36,7 +36,7 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
     } else {
       setClientInfo({ ...clientInfo, [name]: value });
 
-      if (name === "cedula" && value.length >= 6) {
+      if (name === "cedula") {
         buscarClientePorCedula(value);
       }
     }
