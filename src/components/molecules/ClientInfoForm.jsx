@@ -5,43 +5,40 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
-  // Buscar cliente por cédula/RIF
-  useEffect(() => {
-    const buscarClientePorCedula = async () => {
-      if (clientInfo.cedula && clientInfo.cedula.length >= 6) {
-        try {
-          const { data } = await axios.get(
-            `https://back-bakend2.onrender.com/api/clientes/cedula/${clientInfo.cedula}`
-          );
-
-          if (data) {
-            setClientInfo({
-              id: data.id,
-              nombre: data.nombre,
-              cedula: data.cedula,
-              telefono: data.telefono,
-              direccion: data.direccion,
-            });
-            setMsg("Cliente encontrado.");
-          }
-        } catch (err) {
-          // Si no existe, limpia el ID y el mensaje
-          setClientInfo((prev) => ({ ...prev, id: null }));
-          setMsg("Cliente no registrado.");
-        }
+  // Buscar cliente por cédula
+  const buscarClientePorCedula = async (cedula) => {
+    try {
+      const { data } = await axios.get(`https://back-bakend2.onrender.com/api/clientes/cedula/${cedula}`);
+      if (data) {
+        setClientInfo({
+          id: data.id,
+          nombre: data.nombre,
+          cedula: data.cedula,
+          telefono: data.telefono,
+          direccion: data.direccion,
+        });
+        setMsg("Cliente encontrado y cargado.");
       }
-    };
+    } catch (error) {
+      // Si no se encuentra, no mostramos error, solo limpiamos el ID
+      setClientInfo((prev) => ({ ...prev, id: null }));
+    }
+  };
 
-    buscarClientePorCedula();
-  }, [clientInfo.cedula]);
-
+  // Manejo de cambios de input
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Si es teléfono, solo números
     if (name === "telefono") {
       const soloNumeros = value.replace(/\D/g, "");
       setClientInfo({ ...clientInfo, [name]: soloNumeros });
     } else {
       setClientInfo({ ...clientInfo, [name]: value });
+
+      if (name === "cedula" && value.length >= 6) {
+        buscarClientePorCedula(value);
+      }
     }
   };
 
@@ -50,25 +47,19 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
     setLoading(true);
     setMsg("");
 
-    const payload = {
-      nombre: clientInfo.nombre,
-      cedula: clientInfo.cedula,
-      telefono: clientInfo.telefono,
-      direccion: clientInfo.direccion,
-    };
-
     try {
+      const payload = {
+        nombre: clientInfo.nombre,
+        cedula: clientInfo.cedula,
+        telefono: clientInfo.telefono,
+        direccion: clientInfo.direccion,
+      };
+
       if (clientInfo.id) {
-        await axios.put(
-          `https://back-bakend2.onrender.com/api/clientes/${clientInfo.id}`,
-          payload
-        );
+        await axios.put(`https://back-bakend2.onrender.com/api/clientes/${clientInfo.id}`, payload);
         setMsg("Cliente actualizado correctamente.");
       } else {
-        const { data } = await axios.post(
-          "https://back-bakend2.onrender.com/api/clientes",
-          payload
-        );
+        const { data } = await axios.post("https://back-bakend2.onrender.com/api/clientes", payload);
         setClientInfo((prev) => ({ ...prev, id: data.id }));
         setMsg("Cliente creado correctamente.");
       }
@@ -124,7 +115,6 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
           onChange={handleChange}
           placeholder="Dirección"
           className="w-full p-2 border rounded-lg"
-          required
         />
 
         <button
@@ -144,9 +134,7 @@ const ClientInfoForm = ({ clientInfo, setClientInfo }) => {
         {msg && (
           <p
             className={`mt-2 text-sm ${
-              msg.includes("correctamente") || msg === "Cliente encontrado."
-                ? "text-green-600"
-                : "text-red-600"
+              msg.includes("correctamente") ? "text-green-600" : "text-red-600"
             }`}
           >
             {msg}
