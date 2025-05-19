@@ -50,6 +50,10 @@ const PrintDecision = (p) => {
             carrito={p.carrito}
             paids={p.paid}
             facturaId={p.facturaId}
+            client={p.client}
+            mostrarImpuestos={p.paid.some(
+              (pago) => pago.mtd === "Pago en Divisas"
+            )}
           />
         </div>
       </div>

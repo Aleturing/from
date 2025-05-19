@@ -26,6 +26,8 @@ const NoPrintArea = (p) => {
         carrito={p.carrito}
         setFacturaId={p.setFacturaId}
         onLogin={p.onLogin}
+        client={p.client}
+        setClient={p.setClient}
       />
 
       <PrintDecision
@@ -35,6 +37,7 @@ const NoPrintArea = (p) => {
         setIsPrint={p.setIsPrint}
         carrito={p.carrito}
         facturaId={p.facturaId}
+         client={p.client}
       />
     </>
   );

@@ -40,6 +40,7 @@ const RightSideBar = ({
           paid={paid}
           setPaid={setPaid}
           setIsSubmit={setIsSubmit}
+          clientInfo={clientInfo}
         />
       </div>
     </div>

@@ -23,7 +23,7 @@ function TotalSubmit(p) {
         {/* Confirmación de Pago */}
         <ConfirmPaid total={change} carrito={p.carrito} />
         {/* Botón de Envío */}
-        <SubmitButton setIsSubmit={p.setIsSubmit} />
+        <SubmitButton setIsSubmit={p.setIsSubmit} client={p.clientInfo}/>
       </div>
     );
 }
