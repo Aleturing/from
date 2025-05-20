@@ -12,11 +12,16 @@ const PrintDecision = (p) => {
   const handlePrint = () => {
     reactToPrintFn(); // Inicia la impresión
     p.setIsPrint(false); // Cierra el modal después de imprimir
+    p.setPaid([]);
+    p.setCarrito([]);
+    p.setClient({
+      nombre: "",
+      cedula: "",
+      telefono: "",
+    });
   };
 
-  const handleClose = () => {
-    p.setIsPrint(false); // Cierra el modal sin imprimir
-  };
+  const handleClose = () => p.setIsPrint(false); // Cierra el modal sin imprimir
 
   return (
     <ReactModal
@@ -43,6 +48,7 @@ const PrintDecision = (p) => {
             No, cerrar
           </button>
         </div>
+
         {/* Contenido oculto para impresión */}
         <div style={{ display: "none" }}>
           <PrintPaymentFormat
@@ -51,9 +57,8 @@ const PrintDecision = (p) => {
             paids={p.paid}
             facturaId={p.facturaId}
             client={p.client}
-            mostrarImpuestos={p.paid.some(
-              (pago) => pago.mtd === "Pago en Divisas"
-            )}
+            cobrarIGTF={p.esPagoEnDivisas}
+            cobrarOtros={p.otrosImpuestosHabilitados}
           />
         </div>
       </div>

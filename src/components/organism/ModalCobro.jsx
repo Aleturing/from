@@ -5,11 +5,23 @@ import calculateTotalValue from "../../functions/calculateTotalValue";
 import calculateTotalPaid from "../../functions/calculateTotalPaid";
 import axios from "axios";
 
-function ModalCobro({ carrito, paid, setPaid, client, onLogin, condition, setIsSubmit, setIsPrint, setFacturaId }) {
-  const [otrosImpuestosHabilitados, setOtrosImpuestosHabilitados] = useState(false);
+function ModalCobro({
+  carrito,
+  paid,
+  setPaid,
+  client,
+  onLogin,
+  condition,
+  setIsSubmit,
+  setIsPrint,
+  setFacturaId,
+  otrosImpuestosHabilitados,
+  setOtrosImpuestosHabilitados,
+  esPagoEnDivisas,
+  setEsPagoEnDivisas,
+}) {
   const [otrosImpuestos, setOtrosImpuestos] = useState(0);
   const [numeroDeFactura, setNumeroDeFactura] = useState(0);
-  const [esPagoEnDivisas, setEsPagoEnDivisas] = useState(false);
 
   const total = calculateTotalValue(carrito);
   const paidTotal = calculateTotalPaid(paid);
@@ -28,17 +40,20 @@ function ModalCobro({ carrito, paid, setPaid, client, onLogin, condition, setIsS
   const isPaidSufficient = paidTotal >= totalConImpuestos;
 
   useEffect(() => {
-    const pagoEnDivisasSeleccionado = paid.some((pago) => pago.mtd === "Pago en Divisas");
-    setEsPagoEnDivisas(pagoEnDivisasSeleccionado);
-  }, [paid]);
-
-  useEffect(() => {
     if (otrosImpuestosHabilitados) {
       setOtrosImpuestos(total * OTROS_RATE);
     } else {
       setOtrosImpuestos(0);
     }
   }, [otrosImpuestosHabilitados, total]);
+
+  useEffect(() => {
+    const pagoEnDivisasSeleccionado = paid.some(
+      (pago) => pago.mtd === "Pago en Divisas"
+    );
+
+    setEsPagoEnDivisas(pagoEnDivisasSeleccionado);
+  }, [paid]);
 
   useEffect(() => {
     if (condition) {
@@ -48,7 +63,9 @@ function ModalCobro({ carrito, paid, setPaid, client, onLogin, condition, setIsS
 
   const obtenerUltimoNumeroFactura = async () => {
     try {
-      const response = await axios.get("https://back-bakend2.onrender.com/api/facturasVentas/ultimo-numero");
+      const response = await axios.get(
+        "https://back-bakend2.onrender.com/api/facturasVentas/ultimo-numero"
+      );
       setNumeroDeFactura(response.data.ultimo_numero_factura);
     } catch (error) {
       console.error("Error al obtener el último número de factura:", error);
@@ -57,7 +74,10 @@ function ModalCobro({ carrito, paid, setPaid, client, onLogin, condition, setIsS
 
   const postRequest = async (url, data) => {
     try {
-      const response = await axios.post(`https://back-bakend2.onrender.com/api${url}`, data);
+      const response = await axios.post(
+        `https://back-bakend2.onrender.com/api${url}`,
+        data
+      );
       return response.data;
     } catch (error) {
       console.error(`Error en post a ${url}:`, error);
@@ -65,7 +85,14 @@ function ModalCobro({ carrito, paid, setPaid, client, onLogin, condition, setIsS
     }
   };
 
-  const postFacturaVenta = async (cliente_id, total, usuario_id, tasa, iva, igtf) => {
+  const postFacturaVenta = async (
+    cliente_id,
+    total,
+    usuario_id,
+    tasa,
+    iva,
+    igtf
+  ) => {
     const data = {
       cliente_id,
       fecha: new Date().toISOString().split("T")[0],
@@ -81,7 +108,13 @@ function ModalCobro({ carrito, paid, setPaid, client, onLogin, condition, setIsS
     return await postRequest("/facturasVentas", data);
   };
 
-  const postDetalleFactura = async (factura_compra_id, factura_venta_id, producto_id, cantidad, precio_unitario) => {
+  const postDetalleFactura = async (
+    factura_compra_id,
+    factura_venta_id,
+    producto_id,
+    cantidad,
+    precio_unitario
+  ) => {
     const data = {
       factura_compra_id,
       factura_venta_id,
@@ -118,7 +151,6 @@ function ModalCobro({ carrito, paid, setPaid, client, onLogin, condition, setIsS
         );
       }
 
-      setPaid([]);
       setIsSubmit(false);
       setFacturaId(facturaVentaResponse.id);
       setIsPrint(true);
@@ -138,13 +170,22 @@ function ModalCobro({ carrito, paid, setPaid, client, onLogin, condition, setIsS
   return (
     <div className="fixed w-full h-screen left-0 top-0 z-10 flex justify-center items-center p-24">
       <div className="fixed glass w-full h-screen left-0 top-0 z-0"></div>
-      <div className="rounded-3xl bg-white shadow-xl overflow-hidden z-10" style={{ width: "600px" }}>
+      <div
+        className="rounded-3xl bg-white shadow-xl overflow-hidden z-10"
+        style={{ width: "600px" }}
+      >
         <div className="text-right my-3 mx-3">
-          <button className="text-xl font-semibold" onClick={() => setIsSubmit(false)}>
+          <button
+            className="text-xl font-semibold"
+            onClick={() => setIsSubmit(false)}
+          >
             X
           </button>
         </div>
-        <div id="receipt-content" className="text-left w-full text-sm p-6 overflow-auto">
+        <div
+          id="receipt-content"
+          className="text-left w-full text-sm p-6 overflow-auto"
+        >
           <div className="text-center">
             <h2 className="text-lg font-semibold">Modos de Pago</h2>
             <p className="text-base">Papelera Prever Business C.A.</p>
@@ -221,7 +262,9 @@ function ModalCobro({ carrito, paid, setPaid, client, onLogin, condition, setIsS
             <input
               type="checkbox"
               checked={otrosImpuestosHabilitados}
-              onChange={() => setOtrosImpuestosHabilitados(!otrosImpuestosHabilitados)}
+              onChange={() =>
+                setOtrosImpuestosHabilitados(!otrosImpuestosHabilitados)
+              }
               className="mr-2"
             />
             Agregar otros impuestos
