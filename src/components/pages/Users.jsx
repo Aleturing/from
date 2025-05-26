@@ -6,7 +6,7 @@ function UserForm({ addUser }) {
   const [nombre, setNombre] = useState("");
   const [contraseña, setContraseña] = useState("");
   const [correo, setCorreo] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false); // Estado para determinar si es administrador
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -143,8 +143,7 @@ function User({ user, deleteUser, editUser }) {
 function Users({ setOnLogin }) {
   const [users, setUsers] = useState([]);
   const [administradores, setAdministradores] = useState([]);
-
-  const [isAdmin, setIsAdmin] = useState(false); // Simula el rol del usuario actual
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const getUsers = async () => {
     try {
@@ -188,8 +187,20 @@ function Users({ setOnLogin }) {
 
   const deleteUser = async (id) => {
     try {
+      // Verificar si el usuario es administrador
+      const adminAEliminar = administradores.find(admin => admin.usuario_id === id);
+      
+      // Si es administrador, eliminarlo primero de esa tabla
+      if (adminAEliminar) {
+        await axios.delete(`https://back-bakend2.onrender.com/api/administradores/${adminAEliminar.id}`);
+      }
+      
+      // Luego eliminar el usuario
       await axios.delete(`https://back-bakend2.onrender.com/api/usuarios/${id}`);
+      
+      // Actualizar ambas listas
       getUsers();
+      getAdmins();
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
     }
@@ -207,11 +218,10 @@ function Users({ setOnLogin }) {
   useEffect(() => {
     getUsers();
     getAdmins();
-    const loggedInUser = { role: "admin" }; // Simular usuario logueado
+    const loggedInUser = { role: "admin" };
     setIsAdmin(loggedInUser.role === "admin");
   }, []);
 
-  // Función para obtener usuarios que NO están en la lista de administradores
   function obtenerUsuariosNoAdministradores(usuarios, administradores) {
     const idsAdministradores = administradores.map((admin) => admin.usuario_id);
     return usuarios.filter(
@@ -219,7 +229,6 @@ function Users({ setOnLogin }) {
     );
   }
 
-  // Función para obtener usuarios que SÍ están en la lista de administradores
   function obtenerUsuariosAdministradores(usuarios, administradores) {
     const idsAdministradores = administradores.map((admin) => admin.usuario_id);
     return usuarios.filter((usuario) =>
