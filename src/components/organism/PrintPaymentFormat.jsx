@@ -29,6 +29,11 @@ const PrintPaymentFormat = forwardRef(
     const now = new Date();
     const fechaFormateada = now.toLocaleDateString("es-VE");
     const horaFormateada = now.toLocaleTimeString("es-VE");
+
+    // Nuevos datos de la factura
+    const numeroControl = "00000000"; // Número de control de 8 dígitos (asignado por imprenta)
+    const numeroSecuencial = "000000"; // Numeración secuencial de 6 dígitos
+
     return (
       <div className="relativeCSS" ref={ref}>
         <style type="text/css" media="print">
@@ -50,6 +55,8 @@ const PrintPaymentFormat = forwardRef(
             </div>
             <div className="text-right">
               <p>Factura N°: {facturaId}</p>
+              <p>Control N°: {numeroControl}</p>
+              <p>Secuencia N°: {numeroSecuencial}</p>
               <p>Fecha: {fechaFormateada}</p>
               <p>Hora: {horaFormateada}</p>
             </div>

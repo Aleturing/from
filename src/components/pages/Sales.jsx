@@ -1,7 +1,6 @@
-// src/components/pages/Sales.jsx
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import ReactToPrint from "react-to-print";
+import { useReactToPrint } from "react-to-print";
 import LeftSideBar from "../organism/LeftSideBar";
 
 const Sales = ({ setOnLogin }) => {
@@ -11,9 +10,9 @@ const Sales = ({ setOnLogin }) => {
   const [filterDate, setFilterDate] = useState("");
   const [filterUser, setFilterUser] = useState("");
   const [filterAmount, setFilterAmount] = useState("");
+
   const printRef = useRef();
 
-  // Carga inicial de facturas
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
@@ -29,30 +28,30 @@ const Sales = ({ setOnLogin }) => {
     fetchInvoices();
   }, []);
 
-  // Filtrado reactivo
   useEffect(() => {
     let result = invoices;
     if (searchQuery) {
       result = result.filter(inv =>
-        inv.id.toString().includes(searchQuery)
+        inv.id?.toString().includes(searchQuery)
       );
     }
     if (filterDate) {
-      result = result.filter(inv => inv.fecha.includes(filterDate));
+      result = result.filter(inv => inv.fecha?.includes(filterDate));
     }
     if (filterUser) {
       result = result.filter(inv =>
-        inv.usuario_nombre.toLowerCase().includes(filterUser.toLowerCase())
+        inv.usuario_nombre?.toLowerCase().includes(filterUser.toLowerCase())
       );
     }
     if (filterAmount) {
-      result = result.filter(inv => inv.total >= parseFloat(filterAmount));
+      result = result.filter(inv =>
+        parseFloat(inv.total || 0) >= parseFloat(filterAmount)
+      );
     }
     setFilteredInvoices(result);
   }, [invoices, searchQuery, filterDate, filterUser, filterAmount]);
 
-  // Cálculo de totales
-  const calculateTotalEarnings = interval => {
+  const calculateTotalEarnings = (interval) => {
     const now = new Date();
     return filteredInvoices.reduce((sum, inv) => {
       const date = new Date(inv.fecha);
@@ -72,16 +71,22 @@ const Sales = ({ setOnLogin }) => {
         case "yearly":
           include = date.getFullYear() === now.getFullYear();
           break;
+        default:
+          break;
       }
-      return include ? sum + inv.total : sum;
+      return include ? sum + parseFloat(inv.total || 0) : sum;
     }, 0);
   };
 
-  // Formatea fecha para impresión
   const formatDate = iso => {
     const d = new Date(iso);
     return d.toLocaleDateString() + " " + d.toLocaleTimeString();
   };
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    pageStyle: "@page { size: auto; margin: 20mm; }",
+  });
 
   return (
     <div className="hide-print flex h-screen text-blue-gray-800 antialiased">
@@ -90,29 +95,36 @@ const Sales = ({ setOnLogin }) => {
       <main className="flex-1 p-5 overflow-auto">
         {/* Botón de impresión */}
         <div className="mb-4">
-          <ReactToPrint
-            trigger={() => (
-              <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                🖨️ Imprimir todas las facturas
-              </button>
-            )}
-            content={() => printRef.current}
-            pageStyle="@page { size: auto; margin: 20mm; }"
-          />
+          <button
+            onClick={handlePrint}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            🖨️ Imprimir todas las facturas
+          </button>
         </div>
 
-        {/* Contenido oculto para imprimir */}
-        <div className="hidden" ref={printRef}>
-          <h1 className="text-2xl font-bold mb-4">Listado de Facturas</h1>
-          {filteredInvoices.map(inv => (
-            <div key={inv.id} className="mb-4 border-b pb-2">
-              <p><strong>ID:</strong> {inv.id}</p>
-              <p><strong>Usuario:</strong> {inv.usuario_nombre}</p>
-              <p><strong>Fecha:</strong> {formatDate(inv.fecha)}</p>
-              <p><strong>Total:</strong> ${inv.total.toFixed(2)}</p>
-              <p><strong>IVA:</strong> {inv.IVA}</p>
+        {/* Contenido para imprimir (oculto en pantalla, visible al imprimir) */}
+        <div className="hidden print:block text-black" ref={printRef}>
+          <div className="p-5">
+            <h1 className="text-2xl font-bold mb-4 text-center">Resumen de Facturas</h1>
+            {filteredInvoices.map((inv) => (
+              <div key={inv.id} className="mb-4 border-b pb-2">
+                <p><strong>ID:</strong> {inv.id}</p>
+                <p><strong>Usuario:</strong> {inv.usuario_nombre}</p>
+                <p><strong>Fecha:</strong> {formatDate(inv.fecha)}</p>
+                <p><strong>Total:</strong> ${parseFloat(inv.total || 0).toFixed(2)}</p>
+                <p><strong>IVA:</strong> {inv.IVA}</p>
+              </div>
+            ))}
+            <div className="mt-6 border-t pt-4">
+              <p className="text-lg font-semibold">
+                Total general: ${filteredInvoices.reduce((acc, curr) => acc + parseFloat(curr.total || 0), 0).toFixed(2)}
+              </p>
+              <p className="text-sm text-gray-600">
+                Total de facturas: {filteredInvoices.length}
+              </p>
             </div>
-          ))}
+          </div>
         </div>
 
         {/* Filtros */}
@@ -154,7 +166,7 @@ const Sales = ({ setOnLogin }) => {
           <p>Total Anual: ${calculateTotalEarnings("yearly").toFixed(2)}</p>
         </div>
 
-        {/* Grid de facturas */}
+        {/* Lista de facturas en pantalla */}
         <div className="grid grid-cols-3 gap-2 max-h-96 overflow-y-scroll">
           {filteredInvoices.map(inv => (
             <div
@@ -163,10 +175,9 @@ const Sales = ({ setOnLogin }) => {
             >
               <p>Factura ID: {inv.id}</p>
               <p>Usuario: {inv.usuario_nombre}</p>
-              <p>Fecha: {inv.fecha}</p>
-              <p>
-                Total: ${inv.total.toFixed(2)} — IVA: {inv.IVA}
-              </p>
+              <p>Fecha: {formatDate(inv.fecha)}</p>
+              <p>Total: ${parseFloat(inv.total || 0).toFixed(2)}</p>
+              <p>IVA: {inv.IVA}</p>
             </div>
           ))}
         </div>
