@@ -37,9 +37,9 @@ function ModalCobro({
 
   const cambio = paidTotal - totalConImpuestos;
   const falta = totalConImpuestos - paidTotal;
-  const isPaidSufficient =
-    parseFloat(paidTotal).toFixed(2) >=
-    parseFloat(totalConImpuestos).toFixed(2);
+
+  // CORRECCIÓN: compara números con margen para evitar errores por decimales
+  const isPaidSufficient = paidTotal + 0.001 >= totalConImpuestos;
 
   useEffect(() => {
     if (otrosImpuestosHabilitados) {
@@ -53,7 +53,6 @@ function ModalCobro({
     const pagoEnDivisasSeleccionado = paid.some(
       (pago) => pago.mtd === "Pago en Divisas"
     );
-
     setEsPagoEnDivisas(pagoEnDivisasSeleccionado);
   }, [paid]);
 
@@ -202,7 +201,7 @@ function ModalCobro({
             <table className="w-full text-base">
               <thead>
                 <tr>
-                  <th className="py-2 text-right">N</th>
+                  <th className="py-2 text-right">N°</th>
                   <th className="py-2 text-left">Método de Pago</th>
                   <th className="py-2 text-right">Subtotal</th>
                 </tr>
