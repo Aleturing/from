@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useReactToPrint } from "react-to-print";
 import LeftSideBar from "../organism/LeftSideBar";
+import PrintSalesFormat from "../organism/PrintSalesFormat";
 
 const Sales = ({ setOnLogin }) => {
   const [invoices, setInvoices] = useState([]);
@@ -10,6 +11,8 @@ const Sales = ({ setOnLogin }) => {
   const [filterDate, setFilterDate] = useState("");
   const [filterUser, setFilterUser] = useState("");
   const [filterAmount, setFilterAmount] = useState("");
+  const contentRef = useRef(null);
+  const reactToPrintFn = useReactToPrint({ contentRef });
 
   const printRef = useRef();
 
@@ -31,21 +34,19 @@ const Sales = ({ setOnLogin }) => {
   useEffect(() => {
     let result = invoices;
     if (searchQuery) {
-      result = result.filter(inv =>
-        inv.id?.toString().includes(searchQuery)
-      );
+      result = result.filter((inv) => inv.id?.toString().includes(searchQuery));
     }
     if (filterDate) {
-      result = result.filter(inv => inv.fecha?.includes(filterDate));
+      result = result.filter((inv) => inv.fecha?.includes(filterDate));
     }
     if (filterUser) {
-      result = result.filter(inv =>
+      result = result.filter((inv) =>
         inv.usuario_nombre?.toLowerCase().includes(filterUser.toLowerCase())
       );
     }
     if (filterAmount) {
-      result = result.filter(inv =>
-        parseFloat(inv.total || 0) >= parseFloat(filterAmount)
+      result = result.filter(
+        (inv) => parseFloat(inv.total || 0) >= parseFloat(filterAmount)
       );
     }
     setFilteredInvoices(result);
@@ -78,15 +79,14 @@ const Sales = ({ setOnLogin }) => {
     }, 0);
   };
 
-  const formatDate = iso => {
+  const formatDate = (iso) => {
     const d = new Date(iso);
     return d.toLocaleDateString() + " " + d.toLocaleTimeString();
   };
 
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-    pageStyle: "@page { size: auto; margin: 20mm; }",
-  });
+  const handlePrint = () => {
+    reactToPrintFn(); // Inicia la impresión
+  };
 
   return (
     <div className="hide-print flex h-screen text-blue-gray-800 antialiased">
@@ -99,26 +99,42 @@ const Sales = ({ setOnLogin }) => {
             onClick={handlePrint}
             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
           >
-            🖨️ Imprimir todas las facturas
+            🖨️ Imprimir resumen de ventas
           </button>
         </div>
 
-        {/* Contenido para imprimir (oculto en pantalla, visible al imprimir) */}
+        {/* Contenido para imprimir */}
         <div className="hidden print:block text-black" ref={printRef}>
           <div className="p-5">
-            <h1 className="text-2xl font-bold mb-4 text-center">Resumen de Facturas</h1>
-            {filteredInvoices.map((inv) => (
-              <div key={inv.id} className="mb-4 border-b pb-2">
-                <p><strong>ID:</strong> {inv.id}</p>
-                <p><strong>Usuario:</strong> {inv.usuario_nombre}</p>
-                <p><strong>Fecha:</strong> {formatDate(inv.fecha)}</p>
-                <p><strong>Total:</strong> ${parseFloat(inv.total || 0).toFixed(2)}</p>
-                <p><strong>IVA:</strong> {inv.IVA}</p>
-              </div>
-            ))}
+            <h1 className="text-2xl font-bold mb-4 text-center">
+              Resumen de Ventas
+            </h1>
+
+            <div className="mb-4">
+              <p>
+                <strong>Total Diario:</strong> $
+                {calculateTotalEarnings("daily").toFixed(2)}
+              </p>
+              <p>
+                <strong>Total Semanal:</strong> $
+                {calculateTotalEarnings("weekly").toFixed(2)}
+              </p>
+              <p>
+                <strong>Total Mensual:</strong> $
+                {calculateTotalEarnings("monthly").toFixed(2)}
+              </p>
+              <p>
+                <strong>Total Anual:</strong> $
+                {calculateTotalEarnings("yearly").toFixed(2)}
+              </p>
+            </div>
+
             <div className="mt-6 border-t pt-4">
               <p className="text-lg font-semibold">
-                Total general: ${filteredInvoices.reduce((acc, curr) => acc + parseFloat(curr.total || 0), 0).toFixed(2)}
+                Total general: $
+                {filteredInvoices
+                  .reduce((acc, curr) => acc + parseFloat(curr.total || 0), 0)
+                  .toFixed(2)}
               </p>
               <p className="text-sm text-gray-600">
                 Total de facturas: {filteredInvoices.length}
@@ -133,27 +149,27 @@ const Sales = ({ setOnLogin }) => {
             type="text"
             placeholder="Buscar factura..."
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="border p-2 rounded"
           />
           <input
             type="date"
             value={filterDate}
-            onChange={e => setFilterDate(e.target.value)}
+            onChange={(e) => setFilterDate(e.target.value)}
             className="border p-2 rounded"
           />
           <input
             type="text"
             placeholder="Filtrar por usuario"
             value={filterUser}
-            onChange={e => setFilterUser(e.target.value)}
+            onChange={(e) => setFilterUser(e.target.value)}
             className="border p-2 rounded"
           />
           <input
             type="number"
             placeholder="Filtrar por monto"
             value={filterAmount}
-            onChange={e => setFilterAmount(e.target.value)}
+            onChange={(e) => setFilterAmount(e.target.value)}
             className="border p-2 rounded"
           />
         </div>
@@ -166,9 +182,9 @@ const Sales = ({ setOnLogin }) => {
           <p>Total Anual: ${calculateTotalEarnings("yearly").toFixed(2)}</p>
         </div>
 
-        {/* Lista de facturas en pantalla */}
+        {/* Lista de facturas */}
         <div className="grid grid-cols-3 gap-2 max-h-96 overflow-y-scroll">
-          {filteredInvoices.map(inv => (
+          {filteredInvoices.map((inv) => (
             <div
               key={inv.id}
               className="border border-gray-300 p-2 rounded-lg bg-white"
@@ -180,6 +196,17 @@ const Sales = ({ setOnLogin }) => {
               <p>IVA: {inv.IVA}</p>
             </div>
           ))}
+        </div>
+
+        {/* Contenido oculto para impresión */}
+        <div style={{ display: "none" }}>
+          <PrintSalesFormat
+            ref={contentRef}
+            invoices={filteredInvoices}
+            user={filterUser}
+            date={filterDate}
+            amount={filterAmount}
+          />
         </div>
       </main>
     </div>

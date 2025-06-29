@@ -37,7 +37,9 @@ function ModalCobro({
 
   const cambio = paidTotal - totalConImpuestos;
   const falta = totalConImpuestos - paidTotal;
-  const isPaidSufficient = paidTotal >= totalConImpuestos;
+  const isPaidSufficient =
+    parseFloat(paidTotal).toFixed(2) >=
+    parseFloat(totalConImpuestos).toFixed(2);
 
   useEffect(() => {
     if (otrosImpuestosHabilitados) {
